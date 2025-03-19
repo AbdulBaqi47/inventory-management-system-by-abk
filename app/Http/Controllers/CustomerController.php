@@ -45,20 +45,26 @@ class CustomerController extends Controller
             ->with('success', 'New customer has been created!');
     }
 
-    public function show(Customer $customer)
-    {
-        $customer->loadMissing(['quotations', 'orders'])->get();
 
-        return view('customers.show', [
-            'customer' => $customer
-        ]);
-    }
 
     public function edit(Customer $customer)
     {
         return view('customers.edit', [
             'customer' => $customer
         ]);
+    }
+    public function destroy(Customer $customer)
+    {
+        if($customer->photo)
+        {
+            unlink(public_path('storage/customers/') . $customer->photo);
+        }
+
+        $customer->delete();
+
+        return redirect()
+            ->back()
+            ->with('success', 'Customer has been deleted!');
     }
 
     public function update(UpdateCustomerRequest $request, Customer $customer)
@@ -90,18 +96,13 @@ class CustomerController extends Controller
             ->route('customers.index')
             ->with('success', 'Customer has been updated!');
     }
-
-    public function destroy(Customer $customer)
+    public function show(Customer $customer)
     {
-        if($customer->photo)
-        {
-            unlink(public_path('storage/customers/') . $customer->photo);
-        }
+        $customer->loadMissing(['quotations', 'orders'])->get();
 
-        $customer->delete();
-
-        return redirect()
-            ->back()
-            ->with('success', 'Customer has been deleted!');
+        return view('customers.show', [
+            'customer' => $customer
+        ]);
     }
+
 }
